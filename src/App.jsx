@@ -38,12 +38,12 @@ export default function BulletDropCalculator() {
   }
 
   const maxTime = 5.0; // realistic bullet flight time limit
-  const dragFactor = 0.000147; // empirically tuned for better BC behavior
+  const dragFactor = 0.000110; // empirically tuned for better BC behavior
 
   while (x < distanceMeters && t < maxTime) {
     const dragDecel = dragFactor * (rho / 1.225) * (v * v) / bc;
     v -= dragDecel * dt;
-    if (v <= 100 || isNaN(v)) break;
+    if (v <= 30 || isNaN(v)) break;
 
     x += v * dt;
     t += dt;
