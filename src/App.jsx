@@ -5,8 +5,17 @@ export default function BulletDropCalculator() {
   const [ballisticCoefficient, setBallisticCoefficient] = useState(0.5);
   const [distance, setDistance] = useState(800);
   const [elevation, setElevation] = useState(1500);
+  const [zero, setZero] = useState(100);
   const [dropMeters, setDropMeters] = useState(null);
   const [dropMils, setDropMils] = useState(null);
+
+  const bulletPresets = {
+    "308 - 175gr SMK": { velocity: 2650, bc: 0.505 },
+    "6.5CM - 140gr ELD-M": { velocity: 2700, bc: 0.610 },
+    "223 - 77gr TMK": { velocity: 2750, bc: 0.372 },
+    "300 PRC - 225gr ELD-M": { velocity: 2810, bc: 0.777 },
+    "22LR - 40gr": { velocity: 1100, bc: 0.120 }
+  };
 
   const calculateDrop = () => {
     const G = 9.80665;
@@ -24,44 +33,51 @@ export default function BulletDropCalculator() {
       return (dropInches / (distanceYards * 36)) * 1000;
     };
 
-   const simulateBallisticDrop = (v0, distanceYards, bc, elevation) => {
-  const distanceMeters = distanceYards * 0.9144;
-  const rho = airDensity(elevation);
-  const dt = 0.001;
-  let t = 0;
-  let x = 0;
-  let v = v0;
+    const simulateBallisticDrop = (v0, distanceYards, bc, elevation) => {
+      const distanceMeters = (distanceYards - zero) * YARDS_TO_METERS;
+      const rho = airDensity(elevation);
+      const dt = 0.001;
+      let t = 0;
+      let x = 0;
+      let v = v0;
 
-  if (bc <= 0 || isNaN(bc)) {
-    alert("Ballistic coefficient must be greater than 0.");
-    return 0;
-  }
+      if (bc <= 0 || isNaN(bc)) {
+        alert("Ballistic coefficient must be greater than 0.");
+        return 0;
+      }
 
-  const maxTime = 2.0; // realistic bullet flight time limit
-  const dragFactor = 0.00028; // empirically tuned for better BC behavior
+      const dragFactor = 0.00044;
+      const maxTime = 2.0;
 
-  while (x < distanceMeters && t < maxTime) {
-  const dragDecel = dragFactor * (rho / 1.225) * (v * v) / bc;
-  v -= dragDecel * dt;
+      while (x < distanceMeters && t < maxTime) {
+        const dragDecel = dragFactor * (rho / 1.225) * (v * v) / bc;
+        v -= dragDecel * dt;
+        if (v <= 90 || isNaN(v)) break;
 
-  if (v <= 90 || isNaN(v)) break;
+        x += v * dt;
+        t += dt;
+      }
 
-  x += v * dt;
-  t += dt;
-}
+      console.log("Simulated TOF (s):", t.toFixed(3));
 
-
-  const drop = 0.5 * 9.80665 * t * t;
-  return drop;
-};
-
+      const drop = 0.5 * G * t * t;
+      return drop;
+    };
 
     const v0 = fpsToMps(velocity);
     const dropM = simulateBallisticDrop(v0, distance, ballisticCoefficient, elevation);
-    const dropMil = dropToMils(dropM, distance);
+    const dropMil = dropToMils(dropM, distance - zero);
 
     setDropMeters(dropM.toFixed(2));
     setDropMils(dropMil.toFixed(2));
+  };
+
+  const handleBulletSelect = (e) => {
+    const preset = bulletPresets[e.target.value];
+    if (preset) {
+      setVelocity(preset.velocity);
+      setBallisticCoefficient(preset.bc);
+    }
   };
 
   return (
@@ -69,6 +85,14 @@ export default function BulletDropCalculator() {
       <h1 className="text-2xl font-bold">Bullet Drop Calculator (MILs)</h1>
 
       <div className="space-y-2">
+        <label>Select Bullet Preset:</label>
+        <select onChange={handleBulletSelect} className="w-full p-2 rounded border">
+          <option value="">-- Choose a preset --</option>
+          {Object.keys(bulletPresets).map((key) => (
+            <option key={key} value={key}>{key}</option>
+          ))}
+        </select>
+
         <label>Muzzle Velocity (fps):</label>
         <input
           type="number"
@@ -93,7 +117,15 @@ export default function BulletDropCalculator() {
           className="w-full p-2 rounded border"
         />
 
-        <label>Elevation (meters):</label>
+        <label>Rifle Zero Distance (yards):</label>
+        <input
+          type="number"
+          value={zero}
+          onChange={(e) => setZero(Number(e.target.value))}
+          className="w-full p-2 rounded border"
+        />
+
+        <label>Elevation Above Sea Level (meters):</label>
         <input
           type="number"
           value={elevation}
@@ -112,7 +144,7 @@ export default function BulletDropCalculator() {
       {dropMeters && (
         <div className="mt-4 text-lg">
           <p>Estimated Bullet Drop: <strong>{dropMeters}</strong> meters</p>
-          <p>Drop in MILs: <strong>{dropMils}</strong> mils</p>
+          <p>Drop in MILs (from zero): <strong>{dropMils}</strong> mils</p>
         </div>
       )}
     </div>
