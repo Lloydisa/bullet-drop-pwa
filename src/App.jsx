@@ -25,22 +25,39 @@ export default function BulletDropCalculator() {
     };
 
     const simulateBallisticDrop = (v0, distanceYards, bc, elevation) => {
-      const distanceMeters = distanceYards * YARDS_TO_METERS;
-      const rho = airDensity(elevation);
-      const dt = 0.01; // time step
-      let t = 0;
-      let x = 0;
-      let v = v0;
+  const distanceMeters = distanceYards * YARDS_TO_METERS;
+  const rho = airDensity(elevation);
+  const dt = 0.01;
+  let t = 0;
+  let x = 0;
+  let v = v0;
 
-      while (x < distanceMeters) {
-        const dragDecel = (rho * v * v) / (2 * bc * 13.3); // Simplified G1 approximation
-        v -= dragDecel * dt;
-        x += v * dt;
-        t += dt;
-      }
+  if (bc <= 0 || isNaN(bc)) {
+    alert("Ballistic coefficient must be greater than 0.");
+    return 0;
+  }
 
-      const drop = 0.5 * G * t * t;
-      return drop;
+  const maxSteps = 100000; // prevent infinite loops
+  let steps = 0;
+
+  while (x < distanceMeters && steps < maxSteps) {
+    const dragDecel = (rho * v * v) / (2 * bc * 13.3);
+    v -= dragDecel * dt;
+
+    if (v <= 0 || isNaN(v)) {
+      console.warn("Bullet lost velocity or invalid drag calculation.");
+      break;
+    }
+
+    x += v * dt;
+    t += dt;
+    steps++;
+  }
+
+  const drop = 0.5 * G * t * t;
+  return drop;
+};
+
     };
 
     const v0 = fpsToMps(velocity);
