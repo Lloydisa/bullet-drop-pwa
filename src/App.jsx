@@ -1,6 +1,11 @@
 import { useState } from "react";
 
 export default function App() {
+  const [customProfiles, setCustomProfiles] = useState(() => {
+    const saved = localStorage.getItem('customBulletProfiles');
+    return saved ? JSON.parse(saved) : {};
+  });
+
   const [velocity, setVelocity] = useState(2700);
   const [ballisticCoefficient, setBallisticCoefficient] = useState(0.5);
   const [distance, setDistance] = useState(800);
@@ -8,6 +13,10 @@ export default function App() {
   const [zero, setZero] = useState(100);
   const [dropMeters, setDropMeters] = useState(null);
   const [dropMils, setDropMils] = useState(null);
+
+  const [newName, setNewName] = useState("");
+  const [newVel, setNewVel] = useState("");
+  const [newBC, setNewBC] = useState("");
 
   const bulletPresets = {
     "308 - 175gr SMK": { velocity: 2650, bc: 0.505 },
@@ -19,6 +28,38 @@ export default function App() {
     "223 - 77gr TMK": { velocity: 2750, bc: 0.372 },
     "300 PRC - 225gr ELD-M": { velocity: 2810, bc: 0.777 },
     "22LR - 40gr": { velocity: 1100, bc: 0.120 }
+  };
+
+  const allPresets = { ...bulletPresets, ...customProfiles };
+
+  const handleBulletSelect = (e) => {
+    const preset = allPresets[e.target.value];
+    if (preset) {
+      setVelocity(preset.velocity);
+      setBallisticCoefficient(preset.bc);
+    }
+  };
+
+  const handleAddCustomProfile = () => {
+    if (!newName || !newVel || !newBC) {
+      alert("Please fill out all fields.");
+      return;
+    }
+
+    const updated = {
+      ...customProfiles,
+      [newName]: {
+        velocity: parseFloat(newVel),
+        bc: parseFloat(newBC)
+      }
+    };
+
+    setCustomProfiles(updated);
+    localStorage.setItem("customBulletProfiles", JSON.stringify(updated));
+
+    setNewName("");
+    setNewVel("");
+    setNewBC("");
   };
 
   const calculateDrop = () => {
@@ -41,14 +82,9 @@ export default function App() {
       const distanceMeters = (distanceYards - zero) * YARDS_TO_METERS;
       const rho = airDensity(elevation);
       const dt = 0.001;
-      let t = 0;
-      let x = 0;
-      let v = v0;
+      let t = 0, x = 0, v = v0;
 
-      if (bc <= 0 || isNaN(bc)) {
-        alert("Ballistic coefficient must be greater than 0.");
-        return 0;
-      }
+      if (bc <= 0 || isNaN(bc)) return 0;
 
       const dragFactor = 0.00044;
       const maxTime = 2.0;
@@ -57,15 +93,11 @@ export default function App() {
         const dragDecel = dragFactor * (rho / 1.225) * (v * v) / bc;
         v -= dragDecel * dt;
         if (v <= 90 || isNaN(v)) break;
-
         x += v * dt;
         t += dt;
       }
 
-      console.log("Simulated TOF (s):", t.toFixed(3));
-
-      const drop = 0.5 * G * t * t;
-      return drop;
+      return 0.5 * G * t * t;
     };
 
     const v0 = fpsToMps(velocity);
@@ -74,14 +106,6 @@ export default function App() {
 
     setDropMeters(dropM.toFixed(2));
     setDropMils(dropMil.toFixed(2));
-  };
-
-  const handleBulletSelect = (e) => {
-    const preset = bulletPresets[e.target.value];
-    if (preset) {
-      setVelocity(preset.velocity);
-      setBallisticCoefficient(preset.bc);
-    }
   };
 
   return (
@@ -103,7 +127,7 @@ export default function App() {
               className="w-full p-2 rounded bg-gray-800 text-white border border-green-300"
             >
               <option value="">-- Choose a preset --</option>
-              {Object.keys(bulletPresets).map((key) => (
+              {Object.keys(allPresets).map((key) => (
                 <option key={key} value={key}>{key}</option>
               ))}
             </select>
@@ -149,12 +173,36 @@ export default function App() {
             />
           </div>
 
-          <button
-            onClick={calculateDrop}
-            className="bg-green-600 text-white px-6 py-2 rounded font-semibold hover:bg-green-700 w-full"
-          >
-            🎯 Calculate Drop
-          </button>
+          <div className="mt-6 space-y-2">
+            <h2 className="text-green-200 font-bold">➕ Add Custom Bullet</h2>
+            <input
+              type="text"
+              placeholder="Name"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              className="w-full p-2 rounded bg-gray-800 text-white border border-green-300"
+            />
+            <input
+              type="number"
+              placeholder="Velocity (fps)"
+              value={newVel}
+              onChange={(e) => setNewVel(e.target.value)}
+              className="w-full p-2 rounded bg-gray-800 text-white border border-green-300"
+            />
+            <input
+              type="number"
+              placeholder="Ballistic Coefficient"
+              value={newBC}
+              onChange={(e) => setNewBC(e.target.value)}
+              className="w-full p-2 rounded bg-gray-800 text-white border border-green-300"
+            />
+            <button
+              onClick={handleAddCustomProfile}
+              className="w-full px-4 py-2 bg-green-600 text-white font-bold rounded hover:bg-green-700"
+            >
+              ➕ Save Custom Profile
+            </button>
+          </div>
 
           {dropMeters && (
             <div className="mt-4 text-lg bg-gray-800 p-4 rounded shadow-inner text-white">
