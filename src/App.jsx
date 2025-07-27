@@ -37,17 +37,19 @@ export default function BulletDropCalculator() {
     return 0;
   }
 
-  const maxTime = 5.0; // realistic bullet flight time limit
-  const dragFactor = 0.000110; // empirically tuned for better BC behavior
+  const maxTime = 2.0; // realistic bullet flight time limit
+  const dragFactor = 0.00028; // empirically tuned for better BC behavior
 
   while (x < distanceMeters && t < maxTime) {
-    const dragDecel = dragFactor * (rho / 1.225) * (v * v) / bc;
-    v -= dragDecel * dt;
-    if (v <= 30 || isNaN(v)) break;
+  const dragDecel = dragFactor * (rho / 1.225) * (v * v) / bc;
+  v -= dragDecel * dt;
 
-    x += v * dt;
-    t += dt;
-  }
+  if (v <= 90 || isNaN(v)) break;
+
+  x += v * dt;
+  t += dt;
+}
+
 
   const drop = 0.5 * 9.80665 * t * t;
   return drop;
