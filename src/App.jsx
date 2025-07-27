@@ -11,7 +11,11 @@ export default function BulletDropCalculator() {
 
   const bulletPresets = {
     "308 - 175gr SMK": { velocity: 2650, bc: 0.505 },
+    "308 - 168gr AAC": { velocity: 2650, bc: 0.462 },
+    "308 - 178gr AAC": { velocity: 2600, bc: 0.495 },
     "6.5CM - 140gr ELD-M": { velocity: 2700, bc: 0.610 },
+    "6.5CM - 140gr SST": { velocity: 2700, bc: 0.520 },
+    "6.5 Grendel - 123gr ELD-M": { velocity: 2525, bc: 0.506 },
     "223 - 77gr TMK": { velocity: 2750, bc: 0.372 },
     "300 PRC - 225gr ELD-M": { velocity: 2810, bc: 0.777 },
     "22LR - 40gr": { velocity: 1100, bc: 0.120 }
