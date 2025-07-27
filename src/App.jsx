@@ -25,9 +25,9 @@ export default function BulletDropCalculator() {
     };
 
     const simulateBallisticDrop = (v0, distanceYards, bc, elevation) => {
-  const distanceMeters = distanceYards * YARDS_TO_METERS;
+  const distanceMeters = distanceYards * 0.9144;
   const rho = airDensity(elevation);
-  const dt = 0.01;
+  const dt = 0.001; // smaller time step
   let t = 0;
   let x = 0;
   let v = v0;
@@ -37,15 +37,15 @@ export default function BulletDropCalculator() {
     return 0;
   }
 
-  const maxSteps = 100000; // prevent infinite loops
+  const maxSteps = 500000;
   let steps = 0;
 
   while (x < distanceMeters && steps < maxSteps) {
-    const dragDecel = (rho * v * v) / (2 * bc * 13.3);
+    const dragDecel = (rho * v * v) / (bc * 700);
     v -= dragDecel * dt;
 
-    if (v <= 0 || isNaN(v)) {
-      console.warn("Bullet lost velocity or invalid drag calculation.");
+    if (v <= 50 || isNaN(v)) {
+      console.warn("Bullet slowed below 50 m/s or invalid drag.");
       break;
     }
 
@@ -54,10 +54,12 @@ export default function BulletDropCalculator() {
     steps++;
   }
 
-  const drop = 0.5 * G * t * t;
+  const drop = 0.5 * 9.80665 * t * t;
   return drop;
 
-    };
+
+
+};
 
     const v0 = fpsToMps(velocity);
     const dropM = simulateBallisticDrop(v0, distance, ballisticCoefficient, elevation);
