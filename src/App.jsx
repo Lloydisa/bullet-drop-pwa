@@ -81,72 +81,74 @@ export default function BulletDropCalculator() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-4 space-y-4">
-      <h1 className="text-2xl font-bold">Bullet Drop Calculator (MILs)</h1>
+    <div className="min-h-screen bg-[url('https://images.unsplash.com/photo-1526869383286-7c8d3b86b0f3?auto=format&fit=crop&w=1950&q=80')] bg-cover text-green-100 px-4 py-8">
+      <div className="max-w-xl mx-auto p-6 bg-black/70 backdrop-blur-md rounded-xl shadow-2xl space-y-6">
+        <h1 className="text-3xl font-bold text-center text-green-200">🎯 Bullet Drop Calculator (MILs)</h1>
 
-      <div className="space-y-2">
-        <label>Select Bullet Preset:</label>
-        <select onChange={handleBulletSelect} className="w-full p-2 rounded border">
-          <option value="">-- Choose a preset --</option>
-          {Object.keys(bulletPresets).map((key) => (
-            <option key={key} value={key}>{key}</option>
-          ))}
-        </select>
+        <div className="space-y-3">
+          <label>Select Bullet Preset:</label>
+          <select onChange={handleBulletSelect} className="w-full p-2 rounded bg-gray-800 text-white border border-green-300">
+            <option value="">-- Choose a preset --</option>
+            {Object.keys(bulletPresets).map((key) => (
+              <option key={key} value={key}>{key}</option>
+            ))}
+          </select>
 
-        <label>Muzzle Velocity (fps):</label>
-        <input
-          type="number"
-          value={velocity}
-          onChange={(e) => setVelocity(Number(e.target.value))}
-          className="w-full p-2 rounded border"
-        />
+          <label>Muzzle Velocity (fps):</label>
+          <input
+            type="number"
+            value={velocity}
+            onChange={(e) => setVelocity(Number(e.target.value))}
+            className="w-full p-2 rounded bg-gray-900 text-white border border-green-300"
+          />
 
-        <label>Ballistic Coefficient (G1):</label>
-        <input
-          type="number"
-          value={ballisticCoefficient}
-          onChange={(e) => setBallisticCoefficient(Number(e.target.value))}
-          className="w-full p-2 rounded border"
-        />
+          <label>Ballistic Coefficient (G1):</label>
+          <input
+            type="number"
+            value={ballisticCoefficient}
+            onChange={(e) => setBallisticCoefficient(Number(e.target.value))}
+            className="w-full p-2 rounded bg-gray-900 text-white border border-green-300"
+          />
 
-        <label>Distance to Target (yards):</label>
-        <input
-          type="number"
-          value={distance}
-          onChange={(e) => setDistance(Number(e.target.value))}
-          className="w-full p-2 rounded border"
-        />
+          <label>Distance to Target (yards):</label>
+          <input
+            type="number"
+            value={distance}
+            onChange={(e) => setDistance(Number(e.target.value))}
+            className="w-full p-2 rounded bg-gray-900 text-white border border-green-300"
+          />
 
-        <label>Rifle Zero Distance (yards):</label>
-        <input
-          type="number"
-          value={zero}
-          onChange={(e) => setZero(Number(e.target.value))}
-          className="w-full p-2 rounded border"
-        />
+          <label>Rifle Zero Distance (yards):</label>
+          <input
+            type="number"
+            value={zero}
+            onChange={(e) => setZero(Number(e.target.value))}
+            className="w-full p-2 rounded bg-gray-900 text-white border border-green-300"
+          />
 
-        <label>Elevation Above Sea Level (meters):</label>
-        <input
-          type="number"
-          value={elevation}
-          onChange={(e) => setElevation(Number(e.target.value))}
-          className="w-full p-2 rounded border"
-        />
-      </div>
-
-      <button
-        onClick={calculateDrop}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-      >
-        Calculate Drop
-      </button>
-
-      {dropMeters && (
-        <div className="mt-4 text-lg">
-          <p>Estimated Bullet Drop: <strong>{dropMeters}</strong> meters</p>
-          <p>Drop in MILs (from zero): <strong>{dropMils}</strong> mils</p>
+          <label>Elevation Above Sea Level (meters):</label>
+          <input
+            type="number"
+            value={elevation}
+            onChange={(e) => setElevation(Number(e.target.value))}
+            className="w-full p-2 rounded bg-gray-900 text-white border border-green-300"
+          />
         </div>
-      )}
+
+        <button
+          onClick={calculateDrop}
+          className="bg-green-600 text-white px-6 py-2 rounded font-semibold hover:bg-green-700 w-full"
+        >
+          🎯 Calculate Drop
+        </button>
+
+        {dropMeters && (
+          <div className="mt-4 text-lg bg-gray-800 p-4 rounded shadow-inner text-white">
+            <p>Estimated Bullet Drop: <strong>{dropMeters}</strong> meters</p>
+            <p>Drop in MILs (from zero): <strong>{dropMils}</strong> mils</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
