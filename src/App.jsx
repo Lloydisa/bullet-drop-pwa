@@ -56,7 +56,6 @@ export default function BulletDropCalculator() {
 
   const drop = 0.5 * G * t * t;
   return drop;
-};
 
     };
 
