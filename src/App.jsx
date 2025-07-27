@@ -172,6 +172,13 @@ export default function App() {
               className="w-full p-2 rounded bg-gray-900 text-white border border-green-300"
             />
           </div>
+          <button
+            onClick={calculateDrop}
+            className="bg-green-600 text-white px-6 py-2 rounded font-semibold hover:bg-green-700 w-full"
+          >
+            🎯 Calculate Drop
+          </button>
+
 
           <div className="mt-6 space-y-2">
             <h2 className="text-green-200 font-bold">➕ Add Custom Bullet</h2>
